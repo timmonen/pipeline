@@ -41,30 +41,33 @@ def trim_read(read, quality=30, blocksize=3):
     
 def trim_reads(sample, VERBOSE=0, minlen_read1=100, minlen_read2=50,
                **kwargs):
-    '''Trim low quality at the end of reads'''
+    '''Trim low quality at the end of reads to improve initial rough mapping'''
     from Bio.SeqIO.QualityIO import FastqGeneralIterator as FGI
 
     fn_in = sample.get_read_filenames(gzip=True)['data']
-    fn_outd = sample.get_read_filenames(gzip=True, trimmed=True)
-    fn_out = fn_outd['data']
-    fn_outs = fn_outd['summary']
+    fn_outdict=sample.get_read_filenames(gzip=True, trimmed=True)
+    fn_outd = fn_outdict['data']
+    fn_outs = fn_outdict['summary']
 
     n_good = 0
     n_discarded = 0
 
     with gzip.open(fn_in[0], 'rb') as fin1, \
          gzip.open(fn_in[1], 'rb') as fin2, \
-         gzip.open(fn_out[0], 'wb') as fout1, \
-         gzip.open(fn_out[1], 'wb') as fout2:
+         gzip.open(fn_outd[0], 'wb') as fout1, \
+         gzip.open(fn_outd[1], 'wb') as fout2:
          for irp, reads in enumerate(izip(FGI(fin1), FGI(fin2))):
             # Trim both reads
              trims = [trim_read(read, **kwargs) for read in reads]
+             lrs = map(len, trims)
+             if (lrs[0] > minlen_read1) and (lrs[1] > minlen_read2):
              # Join list to string
              # This makes the fastq format of 4 lines, \n means new line
-             fout1.write('\n'.join([trims[0][0], trims[0][1], '+', trims[0][2]])+'\n')
-             fout2.write('\n'.join([trims[1][0], trims[1][1], '+', trims[1][2]])+'\n')      
-             n_good += 1
-    print n_good
+                 fout1.write('\n'.join([trims[0][0], trims[0][1], '+', trims[0][2]])+'\n')
+                 fout2.write('\n'.join([trims[1][0], trims[1][1], '+', trims[1][2]])+'\n')      
+                 n_good += 1
+             else:
+                 n_discarded += 1
     if VERBOSE:
         print 'Trim lowq ends of reads:'
         print 'Good:', n_good
@@ -99,6 +102,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     sample = Sample(args.sample)
-    
-    sample.trim_reads()
+    sample.trim_reads(VERBOSE=args.verbose)
     
