@@ -10,17 +10,31 @@ class Sample(object):
     def __init__(self, samplename):
         self.name = samplename
         self.load_sample_info()
+        self.get_table_filename()
+        self.get_read_filenames()
+        
+    
+    @staticmethod
+    def write_json(data, filename):
+        from .utils.formats import write_json as wj
+        wj(data, filename)
 
 
     @staticmethod
-    def get_table_filename():
-        import pipeline
+    def get_data_foldername():
+        import pipeline # is this just referring to the root?
         foldername = os.path.abspath(os.path.sep.join([pipeline.__path__[0],
                                                        os.path.pardir,
                                                        'data']))
-        filename = foldername+os.path.sep+'sample_table.csv'
-        return filename
+        foldername = foldername+os.path.sep
+        return foldername
+
         
+    def get_table_filename(self):
+        foldername=self.get_data_foldername()
+        filename = foldername+'sample_table.csv'
+        return filename
+
         
     def load_sample_info(self):
         import pandas as pd
@@ -33,4 +47,44 @@ class Sample(object):
 
         
     def get_read_filenames(self, gzip=True, trimmed=False):
-        return 'ciao'
+        '''Get the filenames of the demultiplexed reads'''
+        foldername=self.get_data_foldername()
+        #filenames = ['read1', 'read2']
+        filenames = ['read1_1000', 'read2_1000']
+        for i,fn in enumerate(filenames):
+            fn = foldername+fn
+            if trimmed:
+                fn = fn+'_trimmed'
+            fn = fn+'.fastq'
+            if gzip:
+                fn = fn+'.gz' 
+            filenames[i] = fn
+            
+        if not trimmed:
+            summary = None
+        else:
+            summary = foldername+'trim_summary.json'
+            
+        return {'data': filenames,
+                'summary': summary}
+                
+    
+    def get_pre_map_filename(self):
+        foldername=self.get_data_foldername()
+        filename = foldername+'pre_map.sam'
+        summary = foldername+'pre_map_summary.json'
+        return {'data': filename,
+                'summary': summary}
+        
+        
+        
+    def trim_reads(self, *args, **kwargs):
+        from .trim_reads import trim_reads as tr
+        return tr(self, *args, **kwargs)
+        
+                        
+    def pre_map_reads(self, *args, **kwargs):
+        from .pre_map import pre_map_reads as pmr
+        return pmr(self, *args, **kwargs)
+
+

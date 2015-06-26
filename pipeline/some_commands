@@ -1,0 +1,5 @@
+ yara_mapper -ll 500 -le 400 NL4-3 read1_1000.fastq read2_1000.fastq | grep 'HWI-M01346:42:000000000-A5DAT:1:1101:23222:1632'
+ yara_mapper -ll 500 -le 400 NL4-3 read1_1000.fastq read2_1000.fastq | grep 'HWI-M01346:42:000000000-A5DAT:1:1101:23222:1632'
+
+
+ run projects/example/pipeline/trim_reads.py --sample 12309

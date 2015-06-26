@@ -8,39 +8,35 @@ from Bio import SeqIO
 from Bio import SeqRecord, Seq
 import numpy as np
 
-folder_name = "/home/timmonen/projects/example/"
+folder_name = "/home/timmonen/projects/example/data/"
 
-reads1 = SeqIO.parse(folder_name+"read1.fastq", "fastq")
-
-#Record object
-
-reads2 = SeqIO.parse(folder_name+"read2.fastq", "fastq")
+reads1 = SeqIO.parse(folder_name+"read1_1000.fastq", "fastq")
 
 myfilename = folder_name+"read1_trim.fastq"
 with open(myfilename, 'a') as f:
     for read in reads1:
-        qold = np.array(read.letter_annotations['phred_quality'], int)
-        ind = qold > 30
-        seqold=np.array(read.seq)
-        seqnew = seqold[ind].tostring()
-        qnew = list(qold[ind])
+        qual_orig = np.array(read.letter_annotations['phred_quality'], int)
+        ind = qual_orig < 30
+        s = map(str,1*ind)
+        s = ''.join(s)
+        substring = '1'*error_length
+        cut=s.index(substring)
+        seq_orig=np.array(read.seq)
+        seq_trim = seq_orig[:cut].tostring()
+        qual_trim = list(qual_orig[:cut])
         read.letter_annotations = {}
-        read.seq=Seq.Seq(seqnew)
-        read.letter_annotations['phred_quality']=qnew
+        read.seq=Seq.Seq(seq_trim)
+        read.letter_annotations['phred_quality']=qual_trim
         SeqIO.write(read,f,'fastq')
-num=0
-myfilename = folder_name+"read2_trim.fastq"
-with open(myfilename, 'a') as f:
-    for read in reads2:
-        num=num+1
-        print(num)
-        qold = np.array(read.letter_annotations['phred_quality'], int)
-        ind = qold > 30
-        seqold=np.array(read.seq)
-        seqnew = seqold[ind].tostring()
-        qnew = list(qold[ind])
-        read.letter_annotations = {}
-        read.seq=Seq.Seq(seqnew)
-        read.letter_annotations['phred_quality']=qnew
-        SeqIO.write(read,f,'fastq')
-        
+
+# Script
+if __name__ == '__main__':
+
+    # Parse input args
+    parser = argparse.ArgumentParser(description='Trim low quality end of reads')
+    parser.add_argument('--sample', required=True,
+                        help='MiSeq sample to analyze')
+    parser.add_argument('--verbose', type=int, default=0,
+                        help='Verbosity level [0-3]')
+
+    args = parser.parse_args()
