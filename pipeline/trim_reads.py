@@ -22,7 +22,9 @@ from pipeline.sample import Sample
 def trim_read(read, quality=30, blocksize=3):
     '''Trim low quality at the end of a given read when at least blocksize 
        low quality scores in a row'''
-    qual_orig = np.fromstring(read[2], np.int8)
+     # Converts illumina character to PHRED SCORE
+    SANGER_SCORE_OFFSET = ord("!")
+    qual_orig = np.fromstring(read[2], np.int8)-SANGER_SCORE_OFFSET
     ind = qual_orig < quality
     s = map(str,1*ind)
     s = ''.join(s)

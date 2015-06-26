@@ -11,7 +11,7 @@ from Bio import SeqIO
 
 folder_name = "/home/timmonen/projects/example/data/"
 
-reads1 = SeqIO.parse(folder_name+"read1.fastq", "fastq")
+reads11 = SeqIO.parse(folder_name+"read1_1000.fastq.gz", "fastq")
 
 reads2 = SeqIO.parse(folder_name+"read2.fastq", "fastq")
 
