@@ -14,18 +14,20 @@ from pipeline.sample import Sample
 
 # Functions
 def pre_map_reads(sample):
-    print 'hej!'
-    fn_in = sample.get_read_filenames(gzip=False, trimmed=False)['data']
+    fn_in = sample.get_read_filenames(gzip=True, trimmed=True)['data']
     fn_outd = sample.get_pre_map_filename()
     fn_out = fn_outd['data']
     fn_outs = fn_outd['summary']
     
-    sp.call(['/home/timmonen/bin/yara_indexer', sample.get_data_foldername()+'NL4-3'])
-    sp.call(['/home/timmonen/bin/yara_mapper', '-ll', '500', '-le', '300',
+    sp.call(['/home/timmonen/bin/yara_indexer', sample.get_data_foldername()+'NL4-3.fasta', '-o', sample.get_data_foldername()+'NL4-3.index'])
+    '''sp.call(['/home/timmonen/bin/yara_mapper', '-ll', '500', '-le', '300',
              '-o', fn_out,
-             sample.get_data_foldername()+'NL4-3',
+             sample.get_data_foldername()+'NL4-3.fasta',
              fn_in[0], fn_in[1],
-            ])
+            ])'''
+    sp.call(['/home/timmonen/bin/yara_mapper',
+             sample.get_data_foldername()+'NL4-3.index',
+             fn_in[0], fn_in[1], '-o', fn_out, '--ll', '500', '--le', '300'])
 
     seqs = []            
     with pysam.Samfile(fn_out, 'r') as bamfile:

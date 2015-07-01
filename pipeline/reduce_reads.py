@@ -11,11 +11,10 @@ from Bio import SeqIO
 
 folder_name = "/home/timmonen/projects/example/data/"
 
-reads11 = SeqIO.parse(folder_name+"read1_1000.fastq.gz", "fastq")
+reads1 = SeqIO.parse(folder_name+"read1.fastq", "fastq")
 
 reads2 = SeqIO.parse(folder_name+"read2.fastq", "fastq")
 
-myfilename = folder_name+"read1_1000.fastq.gz"
 
 num=0
 myfilename = folder_name+"read1_1000.fastq.gz"
