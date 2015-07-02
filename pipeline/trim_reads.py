@@ -16,7 +16,8 @@ from Bio import SeqIO
 from Bio import Seq
 import argparse
 
-from pipeline.sample import Sample    
+from pipeline.sample import Sample
+
 
 # Functions
 
@@ -35,8 +36,6 @@ def trim_read(read, quality=30, blocksize=3):
     qual_str = ''.join(qual_str)
     
     #
-    perfect = 0
-    equal_inserts = 0
 
     # Weed out very small errors in mid-sequence that we will ignore
     startinsert= [match.start() for match in re.finditer(re.escape("10"), qual_str)]

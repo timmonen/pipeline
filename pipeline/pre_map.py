@@ -8,7 +8,7 @@ import sys
 import os
 import subprocess as sp
 import argparse
-
+import pysam
 from pipeline.sample import Sample    
 
 

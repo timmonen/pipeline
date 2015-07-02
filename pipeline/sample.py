@@ -13,6 +13,18 @@ class Sample(object):
         self.get_table_filename()
         self.get_read_filenames()
         
+    @property
+    def primer_dict(self):
+        '''Give a dictionary of the primer sequences for each fragment'''
+        from Bio.Seq import reverse_complement as rc
+        primers = {'F1': ['CTCAATAAAGCTTGCCTTGAGTGC', rc('ACTGTATCATCTGCTCCTGTRTCT')],
+                   'F2': ['AAATTGCAGGGCYCCTAG', rc('CTRTTAGCTGCCCCATCTACATAG')],
+                   'F3B': ['CACACTAATGATGTAARACARTTAACAG', rc('GGGATGTGTACTTCTGAACTTAYTYTTGG')],
+                   'F4': ['CGGGTTTATTWCAGRGACAGCAGA', rc('GGGGTTAAYTTTACACATGGYTTTA')],
+                   'F5a': ['GGCATYTCCTATGGCAGGAAGAAG', rc('GTGGTGCARATGAGTTTTCCAGAGCA')],
+                   'F6': ['GGGTTCTTRGGARCAGCAGGAAG', rc('ATTGAGGCTTAAGCAGTGGGTTC')],}
+        return primers
+        
     
     @staticmethod
     def write_json(data, filename):
