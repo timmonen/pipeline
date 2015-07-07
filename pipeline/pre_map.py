@@ -13,23 +13,22 @@ from pipeline.sample import Sample
 
 
 # Functions
-def pre_map_reads(sample):
+def pre_map(sample, VERBOSE=0,**kwargs):
     fn_in = sample.get_read_filenames(gzip=True, trimmed=True)['data']
     fn_outd = sample.get_pre_map_filename()
     fn_out = fn_outd['data']
     fn_outs = fn_outd['summary']
     
-    sp.call(['/home/timmonen/bin/yara_indexer', sample.get_data_foldername()+'NL4-3.fasta', '-o', sample.get_data_foldername()+'NL4-3.index'])
-    '''sp.call(['/home/timmonen/bin/yara_mapper', '-ll', '500', '-le', '300',
-             '-o', fn_out,
-             sample.get_data_foldername()+'NL4-3.fasta',
-             fn_in[0], fn_in[1],
-            ])'''
-    sp.call(['/home/timmonen/bin/yara_mapper',
-             sample.get_data_foldername()+'NL4-3.index',
-             fn_in[0], fn_in[1], '-o', fn_out, '--ll', '500', '--le', '300'])
+    
+    sp.call(['/home/timmonen/bin/stampy-1.0.27/stampy.py', '--species', 'HIV', '--assembly', 'refseq', '-G', sample.get_data_foldername() +'NL43', sample.get_data_foldername() + 'NL4-3.fasta'])
+    sp.call(['/home/timmonen/bin/stampy-1.0.27/stampy.py','-g', sample.get_data_foldername() + 'NL43', '-H', sample.get_data_foldername() + 'NL43'])
+    sp.call(['/home/timmonen/bin/stampy-1.0.27/stampy.py', '-o', fn_out, '-g', sample.get_data_foldername() + 'NL43', '-h', sample.get_data_foldername() +  'NL43', '-M', fn_in[0],fn_in[1]])
+    
 
-    seqs = []            
+             
+             
+
+    '''seqs = []            
     with pysam.Samfile(fn_out, 'r') as bamfile:
         for ir, read in enumerate(bamfile):
             seqs.append(read.seq)
@@ -54,11 +53,8 @@ def pre_map_reads(sample):
                     # do something
                 
                 else:
-                    continue
+                    continue'''
                 
-
-
-
 
   # Script
 if __name__ == '__main__':
@@ -73,6 +69,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     sample = Sample(args.sample)
-    
-    sample.pre_map_reads()
+    sample.pre_map(VERBOSE=args.verbose)
+
     

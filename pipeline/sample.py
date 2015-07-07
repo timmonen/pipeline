@@ -7,30 +7,54 @@ Created on Wed Jun 24 15:25:27 2015
 import os
 
 class Sample(object):
+    
+    _primer_dict = None
+    _fragment_names = None
+    _fragment_to_primer = None
+    
+    
     def __init__(self, samplename):
         self.name = samplename
         self.load_sample_info()
         self.get_table_filename()
         self.get_read_filenames()
+        self.get_pre_map_filename()
+        self.get_primer_positions()
+        self.get_fragment_positions()
+        self.get_fragment_trim_positions()
+        self.get_fragment_output_names()
+        self.get_data_foldername()
+
         
     @property
     def primer_dict(self):
-        '''Give a dictionary of the primer sequences for each fragment'''
-        from Bio.Seq import reverse_complement as rc
-        primers = {'F1': ['CTCAATAAAGCTTGCCTTGAGTGC', rc('ACTGTATCATCTGCTCCTGTRTCT')],
+        if self._primer_dict is None:
+            from Bio.Seq import reverse_complement as rc
+            self._primer_dict = {'F1': ['CTCAATAAAGCTTGCCTTGAGTGC', rc('ACTGTATCATCTGCTCCTGTRTCT')],
                    'F2': ['AAATTGCAGGGCYCCTAG', rc('CTRTTAGCTGCCCCATCTACATAG')],
                    'F3B': ['CACACTAATGATGTAARACARTTAACAG', rc('GGGATGTGTACTTCTGAACTTAYTYTTGG')],
                    'F4': ['CGGGTTTATTWCAGRGACAGCAGA', rc('GGGGTTAAYTTTACACATGGYTTTA')],
                    'F5a': ['GGCATYTCCTATGGCAGGAAGAAG', rc('GTGGTGCARATGAGTTTTCCAGAGCA')],
                    'F6': ['GGGTTCTTRGGARCAGCAGGAAG', rc('ATTGAGGCTTAAGCAGTGGGTTC')],}
-        return primers
+        return self._primer_dict
         
-    
+    @property
+    def fragment_names(self):
+        if self._fragment_names is None:
+            self._fragment_names = ["F1","F2","F3","F4","F5","F6"]
+        return self._fragment_names
+        
+    @property
+    def fragment_to_primer(self):
+        if self._fragment_to_primer is None:
+            self._fragment_to_primer = {'F1':'F1', 'F2':'F2','F3':'F3B','F4':'F4','F5':'F5a','F6':'F6',}
+        return self._fragment_to_primer
+
+
     @staticmethod
     def write_json(data, filename):
         from .utils.formats import write_json as wj
         wj(data, filename)
-
 
     @staticmethod
     def get_data_foldername():
@@ -40,6 +64,53 @@ class Sample(object):
                                                        'data']))
         foldername = foldername+os.path.sep
         return foldername
+        
+        
+    def get_primer_positions(self):     
+        from Bio import SeqIO
+        import seqanpy.seqanpy as sap
+        import numpy as np
+        ref_name = self.get_data_foldername()+'NL4-3.fasta'   
+        ref = str(SeqIO.read(ref_name, "fasta").seq)  
+        primer_positions = {}
+        for n, prim in enumerate(self.primer_dict.keys()):
+            # Take care of LTRs
+            subref = ref[:7000] if prim[:2] in ['F1', 'F2'] else ref[2000:]
+            offset = 0 if prim[:2] in ['F1', 'F2'] else 2000
+            # Forward primer sequence
+            prim_fwd =  self.primer_dict[prim][0]
+            pos_fwd = np.array(list(sap.align_overlap(subref, prim_fwd)[2]))
+            pos_fwd1 = np.argmax(pos_fwd != '-')
+            pos_fwd2 = pos_fwd1 + len(prim_fwd)
+            # FBackward primer sequence
+            prim_bwd =  self.primer_dict[prim][1]
+            pos_bwd = np.array(list(sap.align_overlap(subref, prim_bwd)[2]))
+            pos_bwd1 = np.argmax(pos_bwd != '-')
+            pos_bwd2 = pos_bwd1 + len(prim_bwd)
+        
+            primer_positions[prim] = [[pos_fwd1 + offset,pos_fwd2 + offset],[pos_bwd1 + offset,pos_bwd2 + offset]]
+        return primer_positions
+        
+    def get_fragment_positions(self):
+        fragment_positions = {}
+        for n, frag in enumerate(self.fragment_names):
+            fragment_positions[frag] = [self.get_primer_positions()[self.fragment_to_primer[frag]][0][0],
+                               self.get_primer_positions()[self.fragment_to_primer[frag]][1][1]]
+        return fragment_positions
+        
+        
+    def get_fragment_trim_positions(self):
+        fragment_trim_positions = {}
+        for n, frag in enumerate(self.fragment_names):
+            fragment_trim_positions[frag] = [self.get_primer_positions()[self.fragment_to_primer[frag]][0][1]+1,
+                               self.get_primer_positions()[self.fragment_to_primer[frag]][1][0]-1]
+        return fragment_trim_positions
+                               
+    def get_fragment_output_names(self):
+        fragment_output_names = []
+        for i, frag in enumerate(self.fragment_names):
+            fragment_output_names.append(self.get_data_foldername() + frag + '.sam')
+        return fragment_output_names
 
         
     def get_table_filename(self):
@@ -95,8 +166,12 @@ class Sample(object):
         return tr(self, *args, **kwargs)
         
                         
-    def pre_map_reads(self, *args, **kwargs):
-        from .pre_map import pre_map_reads as pmr
-        return pmr(self, *args, **kwargs)
+    def pre_map(self, *args, **kwargs):
+        from .pre_map import pre_map as pm
+        return pm(self, *args, **kwargs)
+        
 
+    def trim_and_divide(self, *args, **kwargs):
+        from .trim_and_divide import trim_and_divide as tad
+        return tad(self, *args, **kwargs)
 

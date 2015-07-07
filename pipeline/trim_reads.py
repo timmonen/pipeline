@@ -166,11 +166,8 @@ def trim_reads(sample, VERBOSE=0, minlen_read1=100, minlen_read2=50,
                'histotgram of number of trimmed bases': np.zeros(301).tolist(),
               }    
     sample.write_json(summary, fn_outs)
-             
-
-
-    # USING SeqIO.read gives following error:
-# raise ValueError("More than one record found in handle")
+    return n_good
+    
 
   # Script
 if __name__ == '__main__':
@@ -185,5 +182,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     sample = Sample(args.sample)
-    sample.trim_reads(VERBOSE=args.verbose)
+    n_runs = sample.trim_reads(VERBOSE=args.verbose)
     
