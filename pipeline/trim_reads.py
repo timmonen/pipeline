@@ -49,7 +49,6 @@ def trim_read(read, quality=30, blocksize=3):
         seq_insert = seq_orig
         qual_insert = qual_store
         cut_off=[0,len(seq_insert)]  
-        print "perfect"
     else:
         # If no beginning to first insert, make one at -1
         if len(si) > 0 and len(ei) > 0:
@@ -87,7 +86,7 @@ def trim_read(read, quality=30, blocksize=3):
             seq_insert = seq_orig
             qual_insert = qual_store
             cut_off=[0,len(seq_insert)]  
-            print "perfect"
+           # print "perfect"
         else: 
             if len(si) > 0 and len(ei) > 0:
                 if ei[0] < si[0]:
@@ -110,7 +109,7 @@ def trim_read(read, quality=30, blocksize=3):
                 seq_insert = seq_orig[si[insert_ind][pick]+1:ei[insert_ind][pick]+1]
                 qual_insert = qual_store[si[insert_ind][pick]+1:ei[insert_ind][pick]+1]
                 cut_off=[range(len(seq_orig)+1)[si[insert_ind][pick]+1],range(len(seq_orig)+1)[ei[insert_ind][pick]+1]]
-                print("Sampled insert randomly from equally sized ones")
+                #print("Sampled insert randomly from equally sized ones")
                 
             else:
                 seq_insert = seq_orig[si[insert_ind]+1:ei[insert_ind]+1]

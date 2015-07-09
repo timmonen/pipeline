@@ -27,33 +27,16 @@ def pre_map(sample, VERBOSE=0,**kwargs):
 
              
              
+    n_reads = 0       
+    with pysam.Samfile(fn_out, 'r') as samfile:
+        for ir, read in enumerate(samfile):
+            n_reads += 1
+            
+        # Write summary file
+    summary = {'sample name': sample.name,
+               'number of read pairs': (ir + 1)/2,}    
+    sample.write_json(summary, fn_outs)
 
-    '''seqs = []            
-    with pysam.Samfile(fn_out, 'r') as bamfile:
-        for ir, read in enumerate(bamfile):
-            seqs.append(read.seq)
-            if ir > 5:
-                break
-            pos_read = 0
-            pos_ref = read.pos
-            for (bt, bl) in read.cigar:
-                if bt == 1:
-                    pos_read += bl
-                    # we ignore insertions
-                    continue
-                
-                if bt == 2:
-                    pos_ref += bl
-                    # we ignore deletions
-                    continue
-                
-                if bt == 0:
-                    pos_read += bl
-                    pos_ref += bl
-                    # do something
-                
-                else:
-                    continue'''
                 
 
   # Script

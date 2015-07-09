@@ -18,12 +18,14 @@ class Sample(object):
         self.load_sample_info()
         self.get_table_filename()
         self.get_read_filenames()
+        self.get_divide_summary_filenames()
         self.get_pre_map_filename()
         self.get_primer_positions()
         self.get_fragment_positions()
         self.get_fragment_trim_positions()
         self.get_fragment_output_names()
         self.get_data_foldername()
+        self.get_trashed_read_names()
 
         
     @property
@@ -111,7 +113,13 @@ class Sample(object):
         for i, frag in enumerate(self.fragment_names):
             fragment_output_names.append(self.get_data_foldername() + frag + '.sam')
         return fragment_output_names
-
+        
+    def get_trashed_read_names(self):
+        trashed_read_names = []
+        trashed_reads = ['unmapped_read','small_insert', 'big_insert', 'trashed_primer', 'ambiguous_fragment', 'no_fragment']
+        for i, trashed in enumerate(trashed_reads):
+            trashed_read_names.append(self.get_data_foldername() + trashed + '.sam')
+        return trashed_read_names
         
     def get_table_filename(self):
         foldername=self.get_data_foldername()
@@ -133,7 +141,7 @@ class Sample(object):
         '''Get the filenames of the demultiplexed reads'''
         foldername=self.get_data_foldername()
         #filenames = ['read1', 'read2']
-        filenames = ['read1_1000', 'read2_1000']
+        filenames = ['read1_10000', 'read2_10000']
         for i,fn in enumerate(filenames):
             fn = foldername+fn
             if trimmed:
@@ -150,6 +158,12 @@ class Sample(object):
             
         return {'data': filenames,
                 'summary': summary}
+                
+    def get_divide_summary_filenames(self):
+        '''Get the filenames of the demultiplexed reads'''
+        foldername=self.get_data_foldername()
+        summary = foldername+'trim_and_divide_summary.json'
+        return summary
                 
     
     def get_pre_map_filename(self):

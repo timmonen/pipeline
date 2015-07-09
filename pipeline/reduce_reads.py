@@ -1,6 +1,7 @@
 # vim: fdm=marker
 '''
 '''
+
 # Modules
 import sys
 import gzip
@@ -17,21 +18,20 @@ reads2 = SeqIO.parse(folder_name+"read2.fastq", "fastq")
 
 
 num=0
-myfilename = folder_name+"read1_1000.fastq.gz"
+myfilename = folder_name+"read1_10000.fastq.gz"
 with gzip.open(myfilename, 'a') as f:
      for read in reads1:
         num=num+1
         print num
         SeqIO.write(read,f,'fastq')
-        if num >= 1000:
+        if num >= 10000:
             break
             
-myfilename = folder_name+"read2_1000.fastq.gz"
+myfilename = folder_name+"read2_10000.fastq.gz"
 with gzip.open(myfilename, 'a') as f:
     for num, read in enumerate(reads2):
         print num
         SeqIO.write(read,f,'fastq')
-        if num + 1 >= 1000:
+        if num + 1 >= 10000:
             break
-
         
