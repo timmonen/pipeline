@@ -24,6 +24,7 @@ class Sample(object):
         self.get_fragment_positions()
         self.get_fragment_trim_positions()
         self.get_fragment_output_names()
+        self.get_fragment_fastq_names()
         self.get_data_foldername()
         self.get_trashed_read_names()
 
@@ -113,7 +114,11 @@ class Sample(object):
         for i, frag in enumerate(self.fragment_names):
             fragment_output_names.append(self.get_data_foldername() + frag + '.sam')
         return fragment_output_names
-        
+    def get_fragment_fastq_names(self):
+        fragment_fastq_names = []
+        for i, frag in enumerate(self.fragment_names):
+            fragment_fastq_names.append(self.get_data_foldername() + frag + '.fastq')
+        return fragment_fastq_names
     def get_trashed_read_names(self):
         trashed_read_names = []
         trashed_reads = ['unmapped_read','small_insert', 'big_insert', 'trashed_primer', 'ambiguous_fragment', 'no_fragment']
@@ -188,4 +193,8 @@ class Sample(object):
     def trim_and_divide(self, *args, **kwargs):
         from .trim_and_divide import trim_and_divide as tad
         return tad(self, *args, **kwargs)
+        
+    def assembly(self, *args, **kwargs):
+        from .assembly import assembly as ass
+        return ass(self, *args, **kwargs)
 

@@ -23,9 +23,7 @@ def pre_map(sample, VERBOSE=0,**kwargs):
     sp.call(['/home/timmonen/bin/stampy-1.0.27/stampy.py', '--species', 'HIV', '--assembly', 'refseq', '-G', sample.get_data_foldername() +'NL43', sample.get_data_foldername() + 'NL4-3.fasta'])
     sp.call(['/home/timmonen/bin/stampy-1.0.27/stampy.py','-g', sample.get_data_foldername() + 'NL43', '-H', sample.get_data_foldername() + 'NL43'])
     sp.call(['/home/timmonen/bin/stampy-1.0.27/stampy.py', '-o', fn_out, '-g', sample.get_data_foldername() + 'NL43', '-h', sample.get_data_foldername() +  'NL43', '-M', fn_in[0],fn_in[1]])
-    
 
-             
              
     n_reads = 0       
     with pysam.Samfile(fn_out, 'r') as samfile:

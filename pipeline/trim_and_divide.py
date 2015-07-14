@@ -255,11 +255,12 @@ def trim_and_divide(sample, min_isize = 350, max_isize = 750, VERBOSE = 0,keep_t
     
     with pysam.Samfile(input_filename, 'r') as samfile:
         try:
-            file_handles = [pysam.Samfile(ofn, 'w', template=samfile) 
+            # If working with SAM-files, want to write the header as well
+            file_handles = [pysam.Samfile(ofn, 'wh', template=samfile) 
                             for ofn in fragment_output_names[:len(fragments)]]
         
             if keep_trash == 1:
-                trash_handles = [pysam.Samfile(otr, 'w', template = samfile)
+                trash_handles = [pysam.Samfile(otr, 'wh', template = samfile)
                                 for otr in trashed_read_names[:len(trashed_read_names)]]
     
             for irp, reads in enumerate(pair_generator(samfile)):
